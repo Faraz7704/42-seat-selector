@@ -1,68 +1,50 @@
-let properties = require("../package.json");
-let IntraClient = require("./intra-client");
-let examUsers = require("../service/exam-users")
-let clusters = require("../service/clusters");
-let SeatSelector = require("../service/seat-selector");
+const properties = require("../package.json");
+const IntraClient = require("../service/intra-client");
+const SeatSelector = require("../service/seat-selector");
 
-var intraClient = new IntraClient();
+let intraClient = new IntraClient();
 intraClient.auth().then((token) => {
     console.log('token', token);
 });
+let seatSelector = new SeatSelector();
 
 controllers = {
-    about(req, res, db) {
-        var aboutInfo = {
+    getAbout(req, res) {
+        let aboutInfo = {
             name:properties.name,
             version: properties.version
         }
         res.json(aboutInfo);
     },
-    locations(req, res, db) {
-        intraClient.get('/locations', {
-            'page[size]': 100
-        }).then((info) => {
-            if (!info) {
-                res.sendStatus(403);
-                return;
-            }
+    getGroupsSeats(req, res) {
+        seatSelector.getGroupsSeats().then(info => {
             res.send(info);
         });
     },
-    locByCampusId(req, res, db) {
+    getSeats(req, res) {
         const id = req.params.id;
-        intraClient.get(`/users/${id}/locations`, {
-            'page[size]': 1,
-            'sort': '-begin_at',
-        }).then((info) => {
-            if (!info) {
-                res.sendStatus(403);
-                return;
-            }
+        seatSelector.getSeats(id).then(info => {
             res.send(info);
         });
     },
-    // seatsByExamId(req, res) {
-    //     const exam_id = req.params.exam_id;
-    //     intraClient.getAll(`/events/${exam_id}/events_users`).then((examUsersInfo) => {
-    //         let userIds = examUsers.getIds(examUsersInfo);
-    //         let clustersInfo = clusters.getFlatFormat(['lab1']);
-    //         console.log(userIds);
-    //         console.log(clustersInfo);
-    //         intraClient.getAll(`/locations`, {
-    //             'filter[user_id]': userIds,
-    //             'filter[host]': clustersInfo
-    //         }).then((usersLocInfo) => {
-    //             res.send(usersLocInfo);
-    //         });
-    //     });
-    // }
-    seatsByExamId(req, res, db) {
-        const exam_id = req.params.exam_id;
-        intraClient.getAll(`/events/${exam_id}/events_users`).then((examUsersInfo) => {
-            let userIds = examUsers.getIds(examUsersInfo);
-            clusters.getUserLoc(userIds, intraClient).then(usersLocInfo => {
-                // console.log(usersLocInfo);
-                // res.send(usersLocInfo);
+    getUserSeat(req, res) {
+        const id = req.params.id;
+        const userId = req.params.user_id;
+        seatSelector.getUserSeat(id, userId).then(info => {
+            res.send(info);
+        });
+    },
+    updateUserSeat(req, res) {
+        const id = req.params.id;
+        const userId = req.params.user_id;
+        intraClient.get(`/users/${userId}/locations`, {
+            'page[size]': 1
+        }).then((info) => {
+            info.json().then(user => {
+                let mask = [user.host];
+                seatSelector.allocate(id, user.id, mask).then(seat => {
+                    res.send(seat);
+                });
             });
         });
     }

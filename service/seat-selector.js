@@ -1,10 +1,18 @@
 module.exports = class SeatSelector {
 
-    constructor(intraClient) {
-        this.intraClient = intraClient;
+    async getGroupsSeats() {
+        
     }
 
-    async examUsers(users, seats) {
+    async getSeats(id) {
+        
+    }
+
+    async getUserSeat(id, userId) {
+        
+    }
+
+    async allocate(id, userId, mask, distance) {
         
     }
 }

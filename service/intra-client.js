@@ -1,19 +1,15 @@
 let fetch = require('node-fetch');
 
-const key = "5cbe72a1c8aab70b68c163b9c626094122fba7f32cb0431fb6983da375e5e67e";
-const secret = "c1f05255dc10ae91e326145ce8b221f3358da2faf5f5b801b68df14c45bbdb37";
-const token_url = "https://api.intra.42.fr/v2/oauth/token";
-const endpoint = "https://api.intra.42.fr/v2";
-
 module.exports = class IntraClient {
 
     constructor () {
         this.auth_payload = {
-            client_id: key,
-            client_secret: secret,
+            client_id: process.env.INTRA_KEY,
+            client_secret: process.env.INTRA_SECRET,
             grant_type: 'client_credentials',
-            scope: 'public',
+            scope: process.env.INTRA_SCOPE,
         };
+        console.log(this.auth_payload);
     }
 
     generateHeader(data) {
@@ -23,7 +19,8 @@ module.exports = class IntraClient {
     }
 
     async auth (auth_payload) {
-        let response = await this.post(token_url,
+        let url = process.env.INTRA_TOKEN_URL || "https://api.intra.42.fr/v2/oauth/token";
+        let response = await this.post(url,
             auth_payload ? auth_payload : this.auth_payload, {
                 'Authorization': `Bearer Token`,
             });
@@ -33,7 +30,7 @@ module.exports = class IntraClient {
 
     async request (url, options) {
         if (!url.includes('https://')) {
-            url = endpoint + url;
+            url = process.env.INTRA_ENDPOINT + url;
         }
         return await fetch(url, options).catch(error => {
             console.log('Error: ', error);
@@ -57,7 +54,7 @@ module.exports = class IntraClient {
         return res;
     }
 
-    // convert to multi-thread operation
+    // TODO: convert to multi-thread operation
     async getAll(url, data = {}, headers) {
         data['page[number]'] = 1;
         data['page[size]'] = 100;

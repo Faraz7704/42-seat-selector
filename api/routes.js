@@ -1,8 +1,9 @@
 const controller = require("./controller");
 
 module.exports = (app) => {
-    app.route("/").get(controller.about);
-    app.route("/locations").get(controller.locations);
-    app.route("/campus/:id/locations").get(controller.locByCampusId);
-    app.route("/exams/:exam_id/seats").get(controller.seatsByExamId);
+    app.route("/").get(controller.getAbout);
+    app.route("/exams_seats").get(controller.getGroupsSeats);
+    app.route("/exams_seats/:id").get(controller.getSeats);
+    app.route("/exams_seats/:id/:user_id").get(controller.getUserSeat);
+    app.route("/exams_seats/:id/:user_id").post(controller.updateUserSeat);
 };
