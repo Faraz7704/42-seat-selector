@@ -32,14 +32,18 @@ controllers = {
         });
     },
     upsertSeats(req, res) {
-        seatSelector.upsertSeats(req.params.id, req.body).then(info => {
-            res.send(info);
+        seatSelector.upsertSeats(req.params.id, req.body).then(status => {
+            if (!status) {
+                res.status(403).end("Cannnot upsert data, please make sure that its in a valid format and is not already inserted");
+            } else {
+                res.status(200).end("OK");
+            }
         });
     },
     getUserSeat(req, res) {
         const id = req.params.id;
         const userId = req.params.user_id;
-        seatSelector.getUserSeat(id, userId).then(info => {
+        seatSelector.getUserSeat(id, userId).then(status => {
             res.send(info);
         });
     },
@@ -50,7 +54,7 @@ controllers = {
             'page[size]': 1
         }).then((info) => {
             info.json().then(user => {
-                seatSelector.updateUserSeat(id, user[0]).then(info => {
+                seatSelector.updateUserSeat(id, req.body, user[0]).then(info => {
                     res.send(info);
                 });
             });
