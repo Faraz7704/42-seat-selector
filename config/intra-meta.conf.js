@@ -1,6 +1,6 @@
 let fetch = require('node-fetch');
 
-module.exports = class IntraClient {
+module.exports = class IntraMetaClient {
 
     static auth_payload = {
         client_id: process.env.INTRA_KEY,
@@ -76,21 +76,16 @@ module.exports = class IntraClient {
     static async getAll(url, data = {}, headers) {
         data['page[number]'] = 1;
         data['page[size]'] = 100;
-        try {
-            let response = await IntraClient.get(url, data, headers);
-            let newHeader = response.headers;
-            let total_pages = Math.ceil(newHeader.get('x-total') / newHeader.get('x-per-page'));
-            let newResponse = await response.json();
-            for (let i = 1; i < total_pages; i++) {
-                data['page[number]'] = i + 1;
-                response = await IntraClient.get(url, data, headers);
-                let temp = await response.json();
-                newResponse = newResponse.concat(temp);
-            }
-            return newResponse;
-        } catch (e) {
-            console.error(e);
+        let response = await IntraClient.get(url, data, headers);
+        let newHeader = response.headers;
+        let total_pages = Math.ceil(newHeader.get('x-total') / newHeader.get('x-per-page'));
+        let newResponse = await response.json();
+        for (let i = 1; i < total_pages; i++) {
+            data['page[number]'] = i + 1;
+            response = await IntraClient.get(url, data, headers);
+            let temp = await response.json();
+            newResponse = newResponse.concat(temp);
         }
-        return null;
+        return newResponse;
     }
 }

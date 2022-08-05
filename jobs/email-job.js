@@ -14,18 +14,18 @@ async function updateUserEmails(id, userIds) {
     let result = await dbConfig.client.db(process.env.DB_NAME)
     .collection(id)
     .updateMany(
-        { 'user.id': { '$in': userIds } },
+        { 'user.id': { '$exists': true, '$in': userIds } },
         { $set: { emailSent: true, lastUpdated: new Date() } });
     console.log(`${result.matchedCount} documents matched the query criteria`);
     console.log(`${result.modifiedCount} documents updated`);
     return result;
 }
 
-email = {
+module.exports = email = {
     async send(id, options) {
         const sendEmailAgain = options.sendEmailAgain === undefined ? false : options.sendEmailAgain;
         let receivers = await getUserEmails(id, sendEmailAgain);
-        // receivers = [{ _id: "lab1r1s1", user: { email: 'faraz7710.fk@gmail.com'} }];
+        receivers = [{ _id: "lab1r1s1", user: { email: 'faraz7710.fk@gmail.com'} }];
         let recSize = receivers.length;
         if (receivers === undefined) {
             console.log("found 0 receivers to send email");
@@ -44,15 +44,11 @@ email = {
                 pass: process.env.PASSWORD
             }
         });
-        let email = new Email({
-            message: {
-                from: 'no-reply@intra.fr'
-            }
-        });
+        let email = new Email();
         let counter = 0;
         for (let i = 0; i < recSize; i++) {
             let receiver = receivers[i];
-            let result = await email.renderAll('default', {
+            let result = await email.renderAll(process.env.EMAIL_TEMPLATE, {
                 seatId: receiver._id
             }).catch(e => {
                 console.error(e);
@@ -75,5 +71,3 @@ email = {
         return true;
     }
 }
-
-module.exports = email;

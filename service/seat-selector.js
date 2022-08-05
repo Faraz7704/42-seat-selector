@@ -1,4 +1,5 @@
 const dbConfig = require('../config/db.conf');
+const utils = require('./utils');
 
 module.exports = class SeatSelector {
 
@@ -13,6 +14,12 @@ module.exports = class SeatSelector {
         return results;
     }
 
+    async removeCluster(id) {
+        let result = await dbConfig.client.db(this.dbName)
+        .collection(id).drop();
+        return result;
+    }
+
     async getSeats(id, filter = {}) {
         let cursor = await dbConfig.client.db(this.dbName)
         .collection(id).find(filter);
@@ -21,6 +28,8 @@ module.exports = class SeatSelector {
     }
 
     async upsertSeats(id, seats) {
+        if (seats === undefined)
+            return true;
         let bulkUpdateSeats = [];
         for (let i = 0; i < seats.length; i++) {
             let seat = seats[i];
@@ -34,18 +43,22 @@ module.exports = class SeatSelector {
                             isEnabled: seat.isEnabled === undefined ? true : seat.isEnabled,
                             isBlocked: seat.isBlocked === undefined ? false : seat.isBlocked,
                             isBooked: seat.isBooked === undefined ? false : seat.isBooked,
+                            user: seat.user,
                             lastUpdated: new Date()
                         },
                         $setOnInsert: {
                             _id: seat.id,
                             created: new Date(),
-                            emailSent: false
+                            emailSent: false,
+                            campusId: id
                         }
                     },
                     upsert: true,
                 }
             });
         };
+        if (bulkUpdateSeats.length == 0)
+            return true;
         try {
             let result = await dbConfig.client.db(this.dbName)
                 .collection(id)
@@ -146,5 +159,44 @@ module.exports = class SeatSelector {
             return await dbConfig.client.db(this.dbName).collection(id).findOne({"_id": freeSeat._id});
         }
         return null;
+    }
+
+    getSmartSelectedSeats(countSize, capacity, seats) {
+        let seperator = Math.floor(capacity / countSize);
+        let selectedSeats = [];
+        for (let i = 0; i < capacity; i++) {
+            if (i % seperator === 0)
+                selectedSeats.push(seats[i]);
+        }
+        return selectedSeats;
+    }
+
+    async getRandSeatsAllocations(strategy, locations, seats) {
+        let locSize = locations.length;
+        let seatSize = seats.length;
+        let selectedSeats = [];
+        // Can add more customize strategy to select seats
+        if (strategy === 'SMART_RANDOM' || strategy === undefined) {
+            selectedSeats = this.getSmartSelectedSeats(locSize, seatSize, seats);
+        } else
+            return null;
+        let freeSeats = [];
+        for (let i = 0; i < locSize; i++) {
+            let maskSeats = [];
+            selectedSeats.forEach((seat) => {
+                if (locations[i].host != seat.id)
+                    maskSeats.push(seat);
+            });
+            let randIndex = Math.floor(Math.random() * maskSeats.length);
+            let freeSeat = maskSeats[randIndex];
+            selectedSeats = utils.removeItemOnce(selectedSeats, freeSeat);
+            freeSeat.emailSent = false;
+            freeSeat.isBooked = true;
+            freeSeat.campusId = locations[i].campus_id;
+            freeSeat.user = locations[i].user;
+            freeSeat.user.last_location = locations[i].host;
+            freeSeats.push(freeSeat);
+        }
+        return freeSeats;
     }
 }
