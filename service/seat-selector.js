@@ -3,8 +3,8 @@ const utils = require('./utils');
 
 module.exports = class SeatSelector {
 
-    constructor() {
-        this.dbName = process.env.DB_NAME;
+    constructor(dbName) {
+        this.dbName = dbName;
     }
 
     async getClustersSeats() {
@@ -15,9 +15,14 @@ module.exports = class SeatSelector {
     }
 
     async removeCluster(id) {
-        let result = await dbConfig.client.db(this.dbName)
-        .collection(id).drop();
-        return result;
+        try {
+            await dbConfig.client.db(this.dbName)
+            .collection(id).drop();
+            return true;
+        } catch (e) {
+            console.log(e);
+            return false;
+        }
     }
 
     async getSeats(id, filter = {}) {
@@ -28,8 +33,6 @@ module.exports = class SeatSelector {
     }
 
     async upsertSeats(id, seats) {
-        if (seats === undefined)
-            return true;
         let bulkUpdateSeats = [];
         for (let i = 0; i < seats.length; i++) {
             let seat = seats[i];
@@ -50,7 +53,7 @@ module.exports = class SeatSelector {
                             _id: seat.id,
                             created: new Date(),
                             emailSent: false,
-                            campusId: id
+                            campusId: seat.campusId
                         }
                     },
                     upsert: true,
@@ -79,6 +82,8 @@ module.exports = class SeatSelector {
                 return false;
             seatIds.push(seat.id);
         });
+        if (seatIds.length == 0)
+            return false;
         let result = await dbConfig.client.db(this.dbName)
         .collection(id)
         .deleteMany(
@@ -119,11 +124,10 @@ module.exports = class SeatSelector {
             let freeSeat = results[randIndex];
             return freeSeat;
         }
-        return null;
+        return undefined;
     }
 
     async removeUserFromSeat(id, userId) {
-        console.log(id, ' ', userId);
         let result = await dbConfig.client.db(this.dbName)
         .collection(id)
         .updateMany(
@@ -158,45 +162,113 @@ module.exports = class SeatSelector {
             console.log(`${result.modifiedCount} documents updated`);
             return await dbConfig.client.db(this.dbName).collection(id).findOne({"_id": freeSeat._id});
         }
-        return null;
+        return undefined;
     }
 
-    getSmartSelectedSeats(countSize, capacity, seats) {
-        let seperator = Math.floor(capacity / countSize);
+    async getUsersByEmailStatus(id, sendEmailAgain = false) {
+        let cursor = await dbConfig.client.db(this.dbName)
+        .collection(id)
+        .find({ 'user.id': { '$exists': true }, emailSent: sendEmailAgain, isBooked: true });
+        let results = await cursor.toArray();
+        return results;
+    }
+    
+    async updateUsersEmailStatus(id, userIds) {
+        let result = await dbConfig.client.db(this.dbName)
+        .collection(id)
+        .updateMany(
+            { 'user.id': { '$exists': true, '$in': userIds } },
+            { $set: { emailSent: true, lastUpdated: new Date() } });
+        console.log(`${result.matchedCount} documents matched the query criteria`);
+        console.log(`${result.modifiedCount} documents updated`);
+        return result;
+    }
+
+    getSelectedSeats(size, seats, minSpacing) {
+        let capacity = seats.length;
+        let spacing = Math.floor(capacity / size);
+        
+        // Check if its possible to select seats based on the params
+        if (minSpacing !== undefined
+            && ((minSpacing + 1) * size > capacity || spacing < minSpacing))
+            return undefined;
+        
         let selectedSeats = [];
-        for (let i = 0; i < capacity; i++) {
-            if (i % seperator === 0)
-                selectedSeats.push(seats[i]);
+        if (spacing < 2) {
+            // Selection based on dynamic spacing
+            let alternateCap = (capacity - size) * 2;
+            for (let i = 0; i < capacity; i++) {
+                if ((i < alternateCap && i % 2 === 0) || i >= alternateCap) {
+                    selectedSeats.push(seats[i]);
+                }
+            }
+        } else {
+            // Selection based on spacing
+            for (let i = 0; i < capacity; i++) {
+                if (i % spacing === 0) {
+                    selectedSeats.push(seats[i]);
+                }
+            }
         }
+        console.log('spacing: ', spacing);
+        console.log('size: ', size);
+        console.log('capacity: ', capacity);
+        console.log('selectedSeats: ', selectedSeats.length);
         return selectedSeats;
     }
 
-    async getRandSeatsAllocations(strategy, locations, seats) {
+    async getSmartRandomSeats(locations, seats, minSpacing) {
+        utils.seatSort(seats);
+        
+        // Get seats by spacing based on minSpacing
         let locSize = locations.length;
-        let seatSize = seats.length;
-        let selectedSeats = [];
-        // Can add more customize strategy to select seats
-        if (strategy === 'SMART_RANDOM' || strategy === undefined) {
-            selectedSeats = this.getSmartSelectedSeats(locSize, seatSize, seats);
-        } else
-            return null;
+        let selectedSeats = this.getSelectedSeats(locSize, seats, minSpacing);
+        if (selectedSeats === undefined || selectedSeats.length == 0)
+            return undefined;
+        
+        // Randomly allocate users to seat
         let freeSeats = [];
+        let changeSeats = [];
         for (let i = 0; i < locSize; i++) {
-            let maskSeats = [];
-            selectedSeats.forEach((seat) => {
-                if (locations[i].host != seat.id)
-                    maskSeats.push(seat);
-            });
-            let randIndex = Math.floor(Math.random() * maskSeats.length);
-            let freeSeat = maskSeats[randIndex];
-            selectedSeats = utils.removeItemOnce(selectedSeats, freeSeat);
+            let randIndex = Math.floor(Math.random() * selectedSeats.length);
+            let freeSeat = selectedSeats[randIndex];
+            selectedSeats.splice(randIndex, 1);
+
             freeSeat.emailSent = false;
             freeSeat.isBooked = true;
             freeSeat.campusId = locations[i].campus_id;
             freeSeat.user = locations[i].user;
             freeSeat.user.last_location = locations[i].host;
+            
+            if (freeSeat.user.last_location == freeSeat.id)
+                changeSeats.push({ index: i, id: freeSeat.id });
             freeSeats.push(freeSeat);
         }
+        let changeSize = changeSeats.length;
+        if (changeSize == 0)
+            return freeSeats;
+
+        // Find another seat to swap with
+        if (changeSize == 1) {
+            let shiftFactor = 1;
+            let addIndex = (changeSeats[0].index + shiftFactor) % freeSeats.length;
+            changeSeats.push({
+                index: addIndex,
+                id: freeSeats[addIndex].id
+            });
+            changeSize++;
+        }
+
+        // Shift users if they get allocated to their last seat
+        let tempId = changeSeats[0].id;
+        for (let i = 0; i < changeSize; i++) {
+            let changeSeat = changeSeats[i];
+            if (i == changeSize - 1)
+                freeSeats[changeSeat.index].id = tempId;
+            else
+                freeSeats[changeSeat.index].id = changeSeats[i + 1].id;
+        }
+        
         return freeSeats;
     }
 }

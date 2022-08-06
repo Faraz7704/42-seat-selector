@@ -1,5 +1,4 @@
 var json = require('../assets/clusters.json');
-const intraConfig = require('../config/intra.conf')
 
 module.exports = clusters = {
     getFlatFormat: (keys) => {
@@ -16,30 +15,18 @@ module.exports = clusters = {
         });
         return map;
     },
-    getUsers: async (userIds) => {
-        let locations = [];
-        let size = userIds.length;
-        for (let i = 0; i < size; i++) {
-            let userId = userIds[i];
-            if (userId === undefined)
+    getSeatsByLabs: (labs) => {
+        let seats = [];
+        // TODO: change to intra api call for actual clusters data
+        let clusters = require('../assets/clusters.json');
+        for (let i = 0; i < labs.length; i++) {
+            let labSeatIds = clusters[i][labs[i]];
+            if (labSeatIds === undefined)
                 return undefined;
-            let json = {};
-            let tries = 0;
-            do {
-                let data = await intraConfig.get(`/users/${userId}/locations`, {
-                    'page[size]': 1
-                });
-                json = await data.json()
-                .catch(e => {
-                    console.error(e);
-                    tries++;
-                });
-                if (tries > 5) {
-                    return null;
-                }
-            } while (json === undefined);
-            locations.push(json[0]);
+            labSeatIds.forEach(seatId => {
+                seats.push({ id: seatId });
+            });
         }
-        return locations;
+        return seats;
     }
 }

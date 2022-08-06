@@ -17,12 +17,11 @@ module.exports = class IntraClient {
             let errorMsg = "Intranet is down, please try again later.";
             response = await IntraClient.auth().catch(e => {
                 console.error(e);
-                res.status(403).end(errorMsg);
-                return null;
+                res.status(500).end(errorMsg);
             });
             if (response['error']) {
                 console.log(errorMsg);
-                res.status(403).end(errorMsg);
+                res.status(500).end(errorMsg);
                 return null;
             }
             console.log("regenerated token");
@@ -91,6 +90,6 @@ module.exports = class IntraClient {
         } catch (e) {
             console.error(e);
         }
-        return null;
+        return undefined;
     }
 }

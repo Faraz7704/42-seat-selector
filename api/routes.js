@@ -17,6 +17,7 @@ module.exports = (app) => {
     // Adding and getting seats by exam
     app.route("/exams_seats/:id").get(controller.getSeats);
     app.route("/exams_seats/:id").put(controller.upsertSeats);
+    app.route("/exams_seats/:id").post(controller.insertSeats);
     app.route("/exams_seats/:id").delete(controller.removeSeats);
     
     // Adding and getting seats by users
