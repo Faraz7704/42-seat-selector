@@ -13,7 +13,11 @@ git clone https://github.com/faraz7704/42-seat-selector
 ```
 Command to run the microservice locally.
 ```
-npm run start
+npm start
+```
+or run start:dev command for development.
+```
+npm run start:dev
 ```
 
 ### Integration & Optimization
