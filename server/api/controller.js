@@ -30,7 +30,7 @@ async function getUsersLocations (userIds) {
             if (tries > 5) {
                 return undefined;
             }
-        } while (data === undefined || json === undefined);
+        } while (data === undefined || json === undefined || json[0] === undefined);
         locations.push(json[0]);
     }
     return locations;
@@ -99,6 +99,16 @@ function getSeatsByOptions(body) {
 }
 
 controllers = {
+    // authToken(req, res) {
+    //     let payload = intraConfig.auth_payload;
+    //     payload.code = req.body.code;
+    //     intraConfig.auth(payload).then(token => {
+    //         res.status(200).send({
+    //             status: 200,
+    //             access_token: token.access_token
+    //         });
+    //     });
+    // },
     getAbout(req, res) {
         let aboutInfo = {
             name:properties.name,

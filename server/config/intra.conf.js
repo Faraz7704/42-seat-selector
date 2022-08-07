@@ -6,28 +6,10 @@ module.exports = class IntraClient {
         client_id: process.env.INTRA_KEY,
         client_secret: process.env.INTRA_SECRET,
         grant_type: 'client_credentials',
-        scope: process.env.INTRA_SCOPE,
+        scope: process.env.INTRA_SCOPE
     };
 
     static token = {};
-
-    static async authTokenValidator(req, res, next) {
-        let response = await IntraClient.get(process.env.INTRA_ENDPOINT + '/users');
-        if (response.status === 429) {
-            let errorMsg = "Intranet is down, please try again later.";
-            response = await IntraClient.auth().catch(e => {
-                console.error(e);
-                res.status(500).end(errorMsg);
-            });
-            if (response['error']) {
-                console.log(errorMsg);
-                res.status(500).end(errorMsg);
-                return null;
-            }
-            console.log("regenerated token");
-        }
-        return next();
-    }
 
     static generateHeader(data) {
         return (data === undefined)
@@ -41,6 +23,9 @@ module.exports = class IntraClient {
             auth_payload ? auth_payload : IntraClient.auth_payload, {
                 'Authorization': `Bearer Token`,
             });
+        if (response === undefined) {
+            return undefined;
+        }
         IntraClient.token = await response.json();
         return IntraClient.token;
     }
