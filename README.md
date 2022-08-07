@@ -17,7 +17,7 @@ npm run start
 ```
 
 ### Integration & Optimization
-Replace coding lines commented with `// TODO:`
+Replace coding lines commented with `// TODO:` for production.
 
 [controller.js](https://github.com/Faraz7704/42-seat-selector/blob/main/api/controller.js)
 ```js
@@ -36,43 +36,158 @@ Replace coding lines commented with `// TODO:`
 
 ## API Calls & Customization
 
-### Fetch all seats for all exams
+### Fetch seats for all exams
 ```js
 GET     http://localhost:3000/exams_seats
 ```
 
-### Generating seats by exam id
+### Generating seat selection by exam ID
 
+One-time generator that returns json data of all the attendees seated for the exam (data doesn't persist).
 ```js
-// one-time generator that returns json data of all the attendees seated for the exam (data doesn't persist).
-GET     http://localhost:3000/exams_seats/{id}/generate
-
-// generator that returns status and saves the selection data to database
-POST    http://localhost:3000/exams_seats/{id}/generate
-
-// GET & POST request body params
-body = {
-
-  "strategy": "SMART_RANDOM"    // defaults to SMART_RANDOM
+GET     http://localhost:3000/exams_seats/:id/generate
+```
+Generator that returns status and saves the selection data to database
+```js
+POST    http://localhost:3000/exams_seats/:id/generate
+```
+`GET` & `POST` request body params
+```json5
+{
+  // defaults to SMART_RANDOM
+  "strategy": "SMART_RANDOM",
   
-  // sent email to everyone registered for the exam
-  "sentEmail": true,            // defaults to false
+  // sent email to everyone registered for the exam, defaults to false
+  "sentEmail": true,
   
   // minimum spacing to consider when selecting seats for attendees
-  "minSpacing": 2,              // defaults to dynamic spacing based on attendees capacity
+  // defaults to dynamic spacing based on attendees capacity
+  "minSpacing": 2,
   
   // lab ids to consider for selection
   // labs param have higher priority if both are specified
-  "labs": ["lab1", "lab2"],     // mandetory if seats param is not specified
+  // mandetory if seats param is not specified
+  "labs": ["lab1", "lab2"],
   
-  // seat objects to consider for selection
-  "seats": [                    // mandetory if labs param is not specified
+  // seat objects to consider for selection; mandetory if labs param is not specified
+  "seats": [
     {
+      // mandatory field
       "id": "lab1r2s8",
+      
+      // don't consider seat for selection changed with strategy; defaults to false
+      "isBlocked": "false",
+      
+      // don't consider seat for selection; defaults to true
+      "isEnabled": "true",
     },
-    {
-      "id": "lab1r3s5"
-    }
+    ...
   ]
 }
 ```
+
+### Fetch/Update/Delete seats by exam ID
+
+Get seats by exam ID from database
+```js
+GET     http://localhost:3000/exams_seats/:id
+```
+Update seats by exam ID from database
+```js
+PUT     http://localhost:3000/exams_seats/:id
+```
+Reset seats by exam ID from database
+```js
+POST    http://localhost:3000/exams_seats/:id
+```
+`PUT` & `POST` request body params
+```json5
+{
+  // lab seats to add to database
+  // labs param have higher priority if both are specified
+  // mandetory if seats param is not specified
+  "labs": ["lab1", "lab2"],
+  
+  // seat objects to add to database; mandetory if labs param is not specified
+  "seats": [
+    {
+      // mandatory field
+      "id": "lab1r2s8",
+      
+      // don't consider seat for selection changed with strategy; defaults to false
+      "isBlocked": "false",
+      
+      // don't consider seat for selection; defaults to true
+      "isEnabled": "true",
+    },
+    ...
+  ]
+}
+```
+Remove seats from database
+```js
+DELETE    http://localhost:3000/exams_seats/:id
+```
+`DELETE` request body params
+```json5
+{
+  // lab seats to remove from database
+  // labs param have higher priority if both are specified
+  // if neither are specified all seats are removed from the database
+  "labs": ["lab1", "lab2"],
+  
+  // seat objects to remove from database
+  "seats": [
+    {
+      // mandatory field
+      "id": "lab1r2s8",
+    },
+    ...
+  ]
+}
+```
+
+### Fetch/Update/Delete seats by user(attendees) ID
+
+Getting attendees seat by user_id from database
+```js
+GET     http://localhost:3000/exams_seats/:id/:user_id
+```
+Update attendee seat by user_id to database
+```js
+PUT     http://localhost:3000/exams_seats/:id/:user_id
+```
+`PUT` request body params
+```json5
+{
+  // move attendee to a new seat
+  // defaults to false
+  "reallocate": true,
+}
+```
+Remove attendee from seat by user_id from database
+```js
+DELETE   http://localhost:3000/exams_seats/:id/:user_id
+```
+
+### Send emails by exam ID
+
+Send emails to attendees by exam ID and email status
+```js
+POST    http://localhost:3000/exams_seats/:id/send_emails
+```
+`POST` request body params
+```json5
+{
+  // sends email to everyone again
+  // defaults to false
+  "sendEmailAgain": true,
+}
+```
+
+### Features to Add
+
+
+
+
+
