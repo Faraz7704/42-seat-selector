@@ -24,6 +24,9 @@ or run start:dev command for development.
 npm run start:dev
 ```
 
+### Authentication
+42 Seat Selector follows [42 api guidelines](https://api.intra.42.fr/apidoc/guides/web_application_flow) for web application flow to authenticate by user role, for example, only users with the role of admin/staff can make calls to this api.
+
 ### Integration & Optimization
 Replace coding lines commented with `// TODO:` for production.
 
