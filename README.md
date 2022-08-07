@@ -194,4 +194,4 @@ Admin can define different allocation strategy to make the seat selection, for e
 Instead of manually making a `http://localhost:3000/exams_seats/:id/send_emails` call before the exam starts. Admin can enable auto emails by specifying the time in the request body during updating/posting the exam seats with `PUT/POST http://localhost:3000/exams_seats/:id`.
 
 ### Fast Generate
-Instead of fetching attendees recent location (slow request) when calling `http://localhost:3000/exams_seats/:id/generate` you can enable fast mode that will fetch the data from intra api on a set interval in the background, this will allow admin to make a call to `http://localhost:3000/exams_seats/:id/fast_generate` that will do the selection based on the already fetched data.
+Instead of fetching attendees recent location (slow request) when calling `http://localhost:3000/exams_seats/:id/generate` you can enable fast mode that will fetch the data from intra api on a set interval in the background. This will allow admin to make a call to `http://localhost:3000/exams_seats/:id/fast_generate` that will do the selection based on the already fetched data.
