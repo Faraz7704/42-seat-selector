@@ -108,7 +108,7 @@ controllers = {
     },
     getTest(req, res) {
         //https://meta.intra.42.fr/clusters.json
-        intraConfig.get(`/users/93141/locations`, {
+        intraConfig.get(`/projects_users/93141`, {
             'page[size]': 100
         }).then((info) => {
             info.json().then(data => {

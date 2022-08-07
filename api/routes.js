@@ -26,5 +26,5 @@ module.exports = (app) => {
     app.route("/exams_seats/:id/:user_id").delete(controller.removeUserFromSeat);
     
     // Send emails to users by exam
-    app.route("/exams_seats/:id/sent_emails").post(controller.sentEmails);
+    app.route("/exams_seats/:id/send_emails").post(controller.sentEmails);
 };

@@ -71,7 +71,7 @@ module.exports = class IntraClient {
         return res;
     }
 
-    // TODO: convert to multi-thread operation
+    // TODO: convert to multi-threaded operation
     static async getAll(url, data = {}, headers) {
         data['page[number]'] = 1;
         data['page[size]'] = 100;
