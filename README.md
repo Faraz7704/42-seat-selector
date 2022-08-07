@@ -11,6 +11,10 @@ Simply fork the repository.
 ```
 git clone https://github.com/faraz7704/42-seat-selector
 ```
+Command to install dependencies.
+```
+npm install
+```
 Command to run the microservice locally.
 ```
 npm start
