@@ -11,6 +11,11 @@ Simply fork the repository.
 ```
 git clone https://github.com/faraz7704/42-seat-selector
 ```
+
+### Server (Backend)
+```
+cd server
+```
 Command to install dependencies.
 ```
 npm install
@@ -22,6 +27,19 @@ npm start
 or run start:dev command for development.
 ```
 npm run start:dev
+```
+
+### Client (Frontend)
+```
+cd client
+```
+Command to install dependencies.
+```
+npm install
+```
+Command to run the client locally.
+```
+npm start
 ```
 
 ### Authentication
@@ -38,11 +56,32 @@ Replace coding lines commented with `// TODO:` for production.
 170   // TODO: path should be changed to '/exams/${id}/exams_users'
 171   const url = `/events/${id}/events_users`;
 ```
-
 [clusters.js](https://github.com/Faraz7704/42-seat-selector/blob/main/service/clusters.js)
 ```js
 20    // TODO: change to intra api call for actual clusters data
 21    let clusters = require('../assets/clusters.json');
+```
+[auth-controller.js](https://github.com/Faraz7704/42-seat-selector/blob/main/server/api/auth-controller.js)
+```js
+      // TODO: can add user role with '/me' using auth instead of bearer token
+      // for example, only staff members are allowed to make calls to this api
+      let response = await intraConfig.get(`/users`);
+      if (response.status === 200)
+          return next();
+```
+[email-job.js](https://github.com/Faraz7704/42-seat-selector/blob/main/server/jobs/email-job.js)
+```js
+      let transporter = nodeMailer.createTransport({
+          service: 'gmail',
+          // TODO: change to 42 mail service provider
+          // host: 'smtpout.secureserver.net',
+          // port: 465,
+          // secure: true,
+          auth: {
+              user: process.env.EMAIL,
+              pass: process.env.PASSWORD
+          }
+      });
 ```
 
 ## API Calls & Customization
