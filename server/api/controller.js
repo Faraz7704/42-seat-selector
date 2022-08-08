@@ -98,33 +98,13 @@ function getSeatsByOptions(body) {
     return seats;
 }
 
-controllers = {
-    // authToken(req, res) {
-    //     let payload = intraConfig.auth_payload;
-    //     payload.code = req.body.code;
-    //     intraConfig.auth(payload).then(token => {
-    //         res.status(200).send({
-    //             status: 200,
-    //             access_token: token.access_token
-    //         });
-    //     });
-    // },
+module.exports = controllers = {
     getAbout(req, res) {
         let aboutInfo = {
             name:properties.name,
             version: properties.version
         }
         res.json(aboutInfo);
-    },
-    getTest(req, res) {
-        //https://meta.intra.42.fr/clusters.json
-        intraConfig.get(`/projects_users/93141`, {
-            'page[size]': 100
-        }).then((info) => {
-            info.json().then(data => {
-                res.send(data);
-            });
-        });
     },
     getClustersSeats(req, res) {
         seatSelector.getClustersSeats().then(info => {
@@ -326,5 +306,3 @@ controllers = {
         });
     }
 }
-
-module.exports = controllers;

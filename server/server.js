@@ -10,6 +10,7 @@ dbConfig.init().then(async _ => {
     console.log("Database connected successfully");
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: false }));
+    app.route("/oauth/token").post(authController.authToken);
     app.use(authController.authTokenValidator);
 
     routes(app);

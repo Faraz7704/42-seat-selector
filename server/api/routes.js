@@ -1,8 +1,6 @@
 const controller = require('./controller');
 
 module.exports = (app) => {
-    app.route("/test").get(controller.getTest);
-    
     // Info about the seat selector microservice
     app.route("/").get(controller.getAbout);
     app.route("/about").get(controller.getAbout);

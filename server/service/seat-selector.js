@@ -20,7 +20,7 @@ module.exports = class SeatSelector {
             .collection(id).drop();
             return true;
         } catch (e) {
-            console.log(e);
+            console.error(e);
             return false;
         }
     }

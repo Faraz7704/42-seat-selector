@@ -1,10 +1,14 @@
 import React, { useEffect } from 'react';
+import {useLocation} from 'react-router-dom';
 
 export default function Home() {
 
+    const state = useLocation().state;
+
     useEffect(() => {
         fetch("/about", {
-            method: 'GET'
+            method: 'GET',
+            headers: state.headers
         }).then(response => {
             response.json().then(data => {
                 console.log(data);

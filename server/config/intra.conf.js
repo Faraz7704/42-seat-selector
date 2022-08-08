@@ -2,28 +2,24 @@ let fetch = require('node-fetch');
 
 module.exports = class IntraClient {
 
-    static auth_payload = {
-        client_id: process.env.INTRA_KEY,
-        client_secret: process.env.INTRA_SECRET,
-        grant_type: 'client_credentials',
-        scope: process.env.INTRA_SCOPE
-    };
-
-    static token = {};
+    static authHeader = {};
 
     static generateHeader(data) {
-        return (data === undefined)
-        ? { 'Authorization': `Bearer ${IntraClient.token.access_token}` }
-        : data;
+        // adding auth check in middle of a request to intra api
+        if (data === undefined)
+            data = IntraClient.authHeader;
+        else if (data.authorization === undefined)
+            data.authorization = IntraClient.authHeader.authorization;
+        return data;
     }
 
-    static async auth (auth_payload) {
+    static async auth (payload) {
         let url = process.env.INTRA_TOKEN_URL || "https://api.intra.42.fr/v2/oauth/token";
-        let response = await IntraClient.post(url,
-            auth_payload ? auth_payload : IntraClient.auth_payload, {
-                'Authorization': `Bearer Token`,
+        let response = await IntraClient.post(url, payload, {
+                authorization: `Bearer Token`,
             });
-        if (response === undefined) {
+        if (response.status !== 200) {
+            console.log(response);
             return undefined;
         }
         IntraClient.token = await response.json();

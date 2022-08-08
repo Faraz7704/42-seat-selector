@@ -15,8 +15,14 @@ export default function Auth() {
             })
         }).then(response => {
             response.json().then(data => {
-                if (data.access_token !== undefined)
-                    navigate("/home");
+                if (data.status === 200)
+                    navigate("/home", {
+                        state: {
+                            headers: {
+                                authorization: `Bearer ${data.token.access_token}`
+                            }
+                        }
+                    });
                 else
                     navigate("/");
             })

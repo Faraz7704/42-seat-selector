@@ -4,9 +4,10 @@ const nodeMailer = require('nodemailer');
 module.exports = email = {
     async send(emailTemplateName, receivers) {
         let emailsSent = [];
-        receivers = [{ _id: "lab1r1s1", user: { email: 'faraz7710.fk@gmail.com'} }];
+        // override receivers for debugging
+        // receivers = [{ _id: "lab1r1s1", user: { email: 'faraz7710.fk@gmail.com'} }];
         let recSize = receivers.length;
-        if (receivers === undefined) {
+        if (receivers === undefined || receivers.length === 0) {
             console.log("found 0 receivers to send email");
             return undefined;
         }
@@ -14,7 +15,7 @@ module.exports = email = {
         //Transporter configuration
         let transporter = nodeMailer.createTransport({
             service: 'gmail',
-            // change to 42 mail service provider
+            // TODO: change to 42 mail service provider
             // host: 'smtpout.secureserver.net',
             // port: 465,
             // secure: true,
