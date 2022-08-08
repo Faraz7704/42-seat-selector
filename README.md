@@ -2,7 +2,7 @@
 
 This repository uses node.js, express and mongodb to create a microservice that selects seats for attendess of 42 events/exams based on the selection strategy specified.
 
-Contains frontend authentication demo to access the api.
+Contains frontend authentication demo to access the api. However, the demo build is not stable and lacks a lot of features that will fully demonstrate the api's capability. Therefore, I recommend using [postman](https://www.postman.com/) for making api calls.
 
 ## Usage
 
