@@ -2,7 +2,7 @@
 
 This repository uses node.js, express and mongodb to create a microservice that selects seats for attendess of 42 events/exams based on the selection strategy specified.
 
-Check out the [Seat Selector Demo]().
+Contains frontend authentication demo to access the api.
 
 ## Usage
 
@@ -11,17 +11,32 @@ Simply fork the repository.
 ```
 git clone https://github.com/faraz7704/42-seat-selector
 ```
-Command to install dependencies.
+
+### Server
+Run the following commands for backend setup.
 ```
+cd server
+
+// install dependencies
 npm install
-```
-Command to run the microservice locally.
-```
+
+// run the microservice locally
 npm start
-```
-or run start:dev command for development.
-```
+
+// or run for development
 npm run start:dev
+```
+
+### Client
+Run the following commands for frontend demo setup.
+```
+cd client
+
+// install dependencies
+npm install
+
+// run the client locally
+npm start
 ```
 
 ### Authentication
@@ -38,11 +53,32 @@ Replace coding lines commented with `// TODO:` for production.
 170   // TODO: path should be changed to '/exams/${id}/exams_users'
 171   const url = `/events/${id}/events_users`;
 ```
-
 [clusters.js](https://github.com/Faraz7704/42-seat-selector/blob/main/service/clusters.js)
 ```js
 20    // TODO: change to intra api call for actual clusters data
 21    let clusters = require('../assets/clusters.json');
+```
+[auth-controller.js](https://github.com/Faraz7704/42-seat-selector/blob/main/server/api/auth-controller.js)
+```js
+      // TODO: can add user role with '/me' using auth instead of bearer token
+      // for example, only staff members are allowed to make calls to this api
+      let response = await intraConfig.get(`/users`);
+      if (response.status === 200)
+          return next();
+```
+[email-job.js](https://github.com/Faraz7704/42-seat-selector/blob/main/server/jobs/email-job.js)
+```js
+      let transporter = nodeMailer.createTransport({
+          service: 'gmail',
+          // TODO: change to 42 mail service provider
+          // host: 'smtpout.secureserver.net',
+          // port: 465,
+          // secure: true,
+          auth: {
+              user: process.env.EMAIL,
+              pass: process.env.PASSWORD
+          }
+      });
 ```
 
 ## API Calls & Customization
@@ -56,13 +92,13 @@ GET     http://localhost:3000/exams_seats
 
 One-time generator that returns json data of all the attendees seated for the exam (data doesn't persist).
 ```js
-GET     http://localhost:3000/exams_seats/:id/generate
+POST    http://localhost:3000/exams_seats/:id/otg
 ```
 Generator that returns status and saves the selection data to database
 ```js
 POST    http://localhost:3000/exams_seats/:id/generate
 ```
-`GET` & `POST` request body params
+`POST` request body params
 ```json5
 {
   // defaults to SMART_RANDOM
