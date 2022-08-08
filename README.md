@@ -2,7 +2,7 @@
 
 This repository uses node.js, express and mongodb to create a microservice that selects seats for attendess of 42 events/exams based on the selection strategy specified.
 
-Check out the [Seat Selector Demo]().
+Contains frontend authentication demo to access the api.
 
 ## Usage
 
