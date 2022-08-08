@@ -6,7 +6,6 @@ import {
   Route,
 } from "react-router-dom";
 import Home from './routes/home';
-import EditSeats from './routes/editSeats';
 import Auth from './routes/auth';
 import './index.css';
 import App from './App';
@@ -19,7 +18,6 @@ root.render(
       <Route path="/" element={<App />} />
       <Route path="/auth" element={<Auth />} />
       <Route path="/home" element={<Home />} />
-      <Route path="/edit-seats" element={<EditSeats />} />
     </Routes>
   </BrowserRouter>
 );

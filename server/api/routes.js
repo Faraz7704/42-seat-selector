@@ -9,7 +9,7 @@ module.exports = (app) => {
     app.route("/exams_seats").get(controller.getClustersSeats);
     
     // Generating seats by exam
-    app.route("/exams_seats/:id/generate").get(controller.oneTimeSeatsGen);
+    app.route("/exams_seats/:id/otg").post(controller.oneTimeSeatsGen);
     app.route("/exams_seats/:id/generate").post(controller.seatsGenerator);
     
     // Adding and getting seats by exam

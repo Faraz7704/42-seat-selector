@@ -1,5 +1,5 @@
-import './App.css';
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function App() {
 
@@ -24,28 +24,12 @@ export default function App() {
   }
 
   return (
-    <div>
-      <h1>42 Seat Selector</h1>
-      <nav
-        style={{
-          borderBottom: "solid 1px",
-          paddingBottom: "1rem",
-        }}
-      >
-        <Link to="/home">Home</Link> |{" "}
-        <Link to="/edit-seats">Edit Seats</Link>
-      </nav>
-      <button onClick={buttonClicked}>
-        Sign In
-      </button>
-      {/* {(typeof backendData.name === 'undefined') ? (
-        <p>Loading...</p>
-      ) : ( */}
-        {/* <div>
-          <p key='0'>{backendData.name}</p>
-          <p key='1'>{backendData.version}</p>
-        </div> */}
-      {/* )} */}
-    </div>
+    <header>
+      <div className="p-5 text-center bg-light">
+        <h1 className="mb-3">42 Seat Selector</h1>
+        <h4 className="mb-3">Sign in with intra</h4>
+        <a className="btn btn-primary" href="#" onClick={buttonClicked} role="button">Sign In</a>
+      </div>
+    </header>
   );
 }

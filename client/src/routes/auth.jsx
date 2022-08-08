@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import Spinner from 'react-bootstrap/Spinner';
 
 export default function Auth() {
 
@@ -30,8 +31,12 @@ export default function Auth() {
     }, []);
 
     return (
-        <main style={{ padding: "1rem 0" }}>
-        <h2>Sign in...</h2>
-        </main>
+        <header>
+            <div className="p-5 text-center bg-light">
+                <Spinner animation="border" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </Spinner>
+           </div>
+        </header>
     );
 } 

@@ -120,10 +120,11 @@ module.exports = controllers = {
         const id = req.params.id;
         const seats = getSeatsByOptions(req.body);
         if (seats === undefined) {
-            return {
+            res.status(400).send({
                 status: 400,
                 message: `Can't allocate seats please make sure the body is correct.`
-            };
+            });
+            return;
         }
         // TODO: path should be changed to '/exams/${id}/exams_users'
         const url = `/events/${id}/events_users`;
@@ -242,8 +243,11 @@ module.exports = controllers = {
     getUserSeat(req, res) {
         const id = req.params.id;
         const userId = req.params.user_id;
-        seatSelector.getUserSeat(id, userId).then(status => {
-            res.send(200).end("OK");
+        seatSelector.getUserSeat(id, userId).then( _ => {
+            res.status(200).send({
+                status: 200,
+                message: "Ok"
+            });
         });
     },
     removeUserFromSeat(req, res) {
