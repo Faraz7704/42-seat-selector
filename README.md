@@ -92,13 +92,13 @@ GET     http://localhost:3000/exams_seats
 
 One-time generator that returns json data of all the attendees seated for the exam (data doesn't persist).
 ```js
-GET     http://localhost:3000/exams_seats/:id/generate
+POST     http://localhost:3000/exams_seats/:id/otg
 ```
 Generator that returns status and saves the selection data to database
 ```js
 POST    http://localhost:3000/exams_seats/:id/generate
 ```
-`GET` & `POST` request body params
+`POST` request body params
 ```json5
 {
   // defaults to SMART_RANDOM
