@@ -232,7 +232,7 @@ POST    http://localhost:3000/exams_seats/:id/send_emails
 }
 ```
 
-## Some more features to extend
+## Some more features to expand on
 
 ### Allocation Strategy
 Admin can define different allocation strategy to make the seat selection, for example, `"BOOKING"` strategy will allow users to select their own seats for movie night in the auditorium.
