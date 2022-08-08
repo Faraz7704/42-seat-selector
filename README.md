@@ -12,33 +12,30 @@ Simply fork the repository.
 git clone https://github.com/faraz7704/42-seat-selector
 ```
 
-### Server (Backend)
+### Server
+Run the following commands for backend setup.
 ```
 cd server
-```
-Command to install dependencies.
-```
+
+// install dependencies
 npm install
-```
-Command to run the microservice locally.
-```
+
+// run the microservice locally
 npm start
-```
-or run start:dev command for development.
-```
+
+// or run for development
 npm run start:dev
 ```
 
-### Client (Frontend)
+### Client
+Run the following commands for frontend demo setup.
 ```
 cd client
-```
-Command to install dependencies.
-```
+
+// install dependencies
 npm install
-```
-Command to run the client locally.
-```
+
+// run the client locally
 npm start
 ```
 
